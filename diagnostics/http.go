@@ -1,12 +1,11 @@
 package diagnostics
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 )
 
-func TestHTTP(url string) {
+func CheckHTTP(url string) (time.Duration, int, error) {
 	client := http.Client{
 		Timeout: 5 * time.Second,
 	}
@@ -17,18 +16,11 @@ func TestHTTP(url string) {
 
 	duration := time.Since(start)
 
-	fmt.Println("\nhttp")
-	fmt.Println("  url:", url)
-	fmt.Println("  response time:", duration)
-
 	if err != nil {
-		fmt.Println("  success: false")
-		fmt.Println("  error:", err)
-		return
+		return duration, 0, err
 	}
 
 	defer resp.Body.Close()
 
-	fmt.Println("  status:", resp.StatusCode)
-	fmt.Println("  success:", resp.StatusCode >= 200 && resp.StatusCode < 400)
+	return duration, resp.StatusCode, nil
 }

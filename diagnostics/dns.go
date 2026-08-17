@@ -2,12 +2,11 @@ package diagnostics
 
 import (
 	"context"
-	"fmt"
 	"net"
 	"time"
 )
 
-func TestDNS(host string) {
+func CheckDNS(host string) (time.Duration, error) {
 	start := time.Now()
 
 	_, err := net.DefaultResolver.LookupHost(
@@ -15,14 +14,5 @@ func TestDNS(host string) {
 		host,
 	)
 
-	duration := time.Since(start)
-
-	fmt.Println("\ndns")
-	fmt.Println("  host:", host)
-	fmt.Println("  response time:", duration)
-	fmt.Println("  success:", err == nil)
-
-	if err != nil {
-		fmt.Println("  error:", err)
-	}
+	return time.Since(start), err
 }

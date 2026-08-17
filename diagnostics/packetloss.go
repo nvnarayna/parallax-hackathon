@@ -1,7 +1,6 @@
 package diagnostics
 
 import (
-	"fmt"
 	"net"
 	"time"
 
@@ -70,19 +69,4 @@ func CheckPacketLoss(host string, count int, timeout time.Duration) (float64, er
 	packetLoss := float64(lost) / float64(count) * 100
 
 	return packetLoss, nil
-}
-
-func TestPacketLoss(url string) {
-	loss, err := CheckPacketLoss(
-		url,
-		10,
-		2*time.Second,
-	)
-
-	if err != nil {
-		fmt.Println("packet loss failed:", err)
-		return
-	}
-
-	fmt.Printf("packet loss: %.2f%%\n", loss)
 }
