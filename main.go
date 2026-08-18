@@ -17,12 +17,27 @@ import (
 )
 
 func main() {
+	config := engine.Config{
+		HealthInterval:    30 * time.Second,
+		TelemetryInterval: 60 * time.Second,
+		SpeedTestInterval: 30 * time.Minute,
+	}
+
+	logFile, err := os.OpenFile(
+		"logs.txt",
+		os.O_CREATE|os.O_WRONLY|os.O_APPEND,
+		0644,
+	)
+	if err != nil {
+		log.Fatalf("log file: %v", err)
+	}
+	defer logFile.Close()
+
 	logger := log.New(
-		os.Stdout,
+		logFile,
 		"[wifi-diagnostic] ",
 		log.LstdFlags,
 	)
-
 	db, err := database.Open("wifi-diagnostic.db")
 	if err != nil {
 		logger.Fatalf("database: %v", err)
@@ -112,11 +127,6 @@ func main() {
 		}, nil
 	}
 
-	config := engine.Config{
-		HealthInterval:    30 * time.Second,
-		TelemetryInterval: 60 * time.Second,
-		SpeedTestInterval: 30 * time.Minute,
-	}
 	wifiProbe := func() (telemetry.WiFiInfo, error) {
 		return telemetry.CollectWiFi()
 	}

@@ -73,18 +73,18 @@ func New(
 	}
 
 	return &Engine{
-		store:              store,
-		healthProbe:        healthProbe,
-		wifiProbe:          wifiProbe,
-		downloadProbe:      downloadProbe,
-		uploadProbe:        uploadProbe,
-		bufferbloatProbe:   bufferbloatProbe,
-		tracerouteProbe:    tracerouteProbe,
-		healthInterval:     config.HealthInterval,
-		telemetryInterval:  config.TelemetryInterval,
-		speedTestInterval:  config.SpeedTestInterval,
-		ticketClient:       ticketClient,
-		logger:             logger,
+		store:             store,
+		healthProbe:       healthProbe,
+		wifiProbe:         wifiProbe,
+		downloadProbe:     downloadProbe,
+		uploadProbe:       uploadProbe,
+		bufferbloatProbe:  bufferbloatProbe,
+		tracerouteProbe:   tracerouteProbe,
+		healthInterval:    config.HealthInterval,
+		telemetryInterval: config.TelemetryInterval,
+		speedTestInterval: config.SpeedTestInterval,
+		ticketClient:      ticketClient,
+		logger:            logger,
 	}
 }
 
@@ -180,6 +180,14 @@ func (e *Engine) runHealth() error {
 		health.HTTPSuccess,
 	)
 
+	if err := e.CheckForProblem(
+		context.Background(),
+		"health",
+		health,
+	); err != nil {
+		e.logger.Printf("[health] ticket check failed: %v", err)
+	}
+
 	return nil
 }
 
@@ -244,6 +252,14 @@ func (e *Engine) runWiFi() error {
 		"[telemetry] completed in %s",
 		time.Since(start),
 	)
+
+	if err := e.CheckForProblem(
+		context.Background(),
+		"wifi",
+		wifi,
+	); err != nil {
+		e.logger.Printf("[telemetry] ticket check failed: %v", err)
+	}
 
 	return nil
 }
@@ -311,6 +327,14 @@ func (e *Engine) runSpeedTest() error {
 		result.UploadMbps,
 		result.BufferbloatMs,
 	)
+
+	if err := e.CheckForProblem(
+		context.Background(),
+		"speedtest",
+		result,
+	); err != nil {
+		e.logger.Printf("[speedtest] ticket check failed: %v", err)
+	}
 
 	return nil
 }
@@ -458,6 +482,14 @@ func (e *Engine) RunDiagnostic(
 		"[diagnostic] completed in %dms",
 		data.Diagnostic.DurationMs,
 	)
+
+	if err := e.CheckForProblem(
+		context.Background(),
+		"diagnostic",
+		data,
+	); err != nil {
+		e.logger.Printf("[diagnostic] ticket check failed: %v", err)
+	}
 
 	return nil
 }
