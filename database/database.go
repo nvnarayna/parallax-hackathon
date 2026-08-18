@@ -321,13 +321,55 @@ func (d *Database) count(table string) (int, error) {
 	return count, err
 }
 
-func (d *Database) Validate() error {
-	var result int
 
-	err := d.db.QueryRow(`SELECT 1`).Scan(&result)
-	if err != nil {
-		return fmt.Errorf("database validation failed: %w", err)
-	}
+func (d *Database) StoreWiFi(w WiFi) error {
+	_, err := d.db.Exec(`
+		INSERT INTO wifi (
+			rssi_dbm,
+			snr_db,
+			channel,
+			frequency_mhz,
+			band,
+			bssid_hash,
+			ssid_hash,
+			signal_percent,
+			link_mbps
+		)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+	`,
+		w.RSSIDBm,
+		w.SNRDb,
+		w.Channel,
+		w.FrequencyMHz,
+		w.Band,
+		w.BSSIDHash,
+		w.SSIDHash,
+		w.SignalPercent,
+		w.LinkMbps,
+	)
 
-	return nil
+	return err
+}
+
+func (d *Database) StoreSpeedTest(s SpeedTest) error {
+	_, err := d.db.Exec(`
+		INSERT INTO speed_tests (
+			download_mbps,
+			upload_mbps,
+			baseline_latency_ms,
+			loaded_latency_ms,
+			peak_latency_ms,
+			bufferbloat_ms
+		)
+		VALUES (?, ?, ?, ?, ?, ?)
+	`,
+		s.DownloadMbps,
+		s.UploadMbps,
+		s.BaselineLatencyMs,
+		s.LoadedLatencyMs,
+		s.PeakLatencyMs,
+		s.BufferbloatMs,
+	)
+
+	return err
 }
